@@ -6,7 +6,7 @@ from src.app.db import constants
 User = Table(
     "users",
     metadata,
-    Column("user_id", types.Integer, primary_key=True),
+    Column("id", types.Integer, primary_key=True),
     Column("email", types.String(constants.MAXIMUM_EMAIL_LENGTH), nullable=False, unique=True),
     Column("password", types.Text, nullable=False),
     Column("token", types.Text, nullable=False),

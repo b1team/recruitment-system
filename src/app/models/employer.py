@@ -6,8 +6,8 @@ from src.app.db import constants
 Employer = Table(
     "employers",
     metadata,
-    Column("employer_id", types.Integer, primary_key=True, index=True),
-    Column("user_id", types.Integer, ForeignKey("users.user_id"), nullable=False, index=True),
+    Column("id", types.Integer, primary_key=True, index=True),
+    Column("user_id", types.Integer, ForeignKey("users.id"), nullable=False, index=True),
     Column("code", types.String, nullable=False, unique=True, index=True),
     Column("name", types.Text, nullable=False),
     Column("description", types.Text),

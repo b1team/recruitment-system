@@ -5,9 +5,9 @@ from sqlalchemy import types, func
 Job = Table(
     "jobs",
     metadata,
-    Column("job_id", types.Integer, primary_key=True, index=True),
-    Column("employee_job_id", types.Integer, ForeignKey("employee_jobs.employee_job_id"), nullable=False, index=True),
-    Column("job_skill_id", types.Integer, ForeignKey("job_skills.job_skill_id"), nullable=False, index=True),
+    Column("id", types.Integer, primary_key=True, index=True),
+    Column("employee_job_id", types.Integer, ForeignKey("employee_jobs.id"), nullable=False, index=True),
+    Column("job_skill_id", types.Integer, ForeignKey("job_skills.id"), nullable=False, index=True),
     Column("title", types.Text, nullable=False),
     Column("salary", types.Float, nullable=False),
     Column("address", types.Text, nullable=False),
