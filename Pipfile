@@ -13,6 +13,7 @@ gunicorn = "*"
 sqlalchemy = "*"
 databases = {extras = ["postgresql"], version = "*"}
 pydantic = {extras = ["dotenv"], version = "*"}
+pyjwt = "*"
 
 [requires]
 python_version = "3.6"

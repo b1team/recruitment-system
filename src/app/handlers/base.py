@@ -3,7 +3,7 @@ from databases import Database
 from pydantic import BaseModel
 
 
-class BaseController:
+class BaseHandler:
     def __init__(self, database: Database, model: Table):
         self._model = model
         self.db = database
