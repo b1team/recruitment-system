@@ -1,17 +1,14 @@
-from src.app.db.base import metadata
-from sqlalchemy import Table, Column, ForeignKey
-from sqlalchemy import types, func
+from src.app.models.base import Base
+from sqlalchemy import Column, ForeignKey
+from sqlalchemy import types
+from sqlalchemy.orm import relationship
 
-Job = Table(
-    "jobs",
-    metadata,
-    Column("id", types.Integer, primary_key=True, index=True),
-    Column("employee_job_id", types.Integer, ForeignKey("employee_jobs.id"), nullable=False, index=True),
-    Column("job_skill_id", types.Integer, ForeignKey("job_skills.id"), nullable=False, index=True),
-    Column("title", types.Text, nullable=False),
-    Column("salary", types.Float, nullable=False),
-    Column("address", types.Text, nullable=False),
-    Column("descriptions", types.Text, nullable=False),
-    Column("created_at", types.DateTime, server_default=func.now()),
-    Column("updated_at", types.DateTime, server_default=func.now(), onupdate=func.now())
-)
+
+class Job(Base):
+    __tablename__ = "jobs"
+    title = Column(types.Text, nullable=False)
+    salary = Column(types.Float, nullable=False)
+    address = Column(types.Text, nullable=False)
+    description = Column(types.Text, nullable=False)
+    job_tags = relationship("JobTag", backref="job")
+    applies = relationship("Apply", backref="job")

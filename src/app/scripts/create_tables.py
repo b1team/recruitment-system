@@ -1,5 +1,4 @@
-from src.app.db.base import metadata
-from src.app.models import *
+from src.app.models.base import Base
+from src.app.db.session import engine
 
-if __name__ == '__main__':
-    metadata.create_all()
+Base.metadata.create_all(engine)

@@ -14,6 +14,7 @@ sqlalchemy = "*"
 databases = {extras = ["postgresql"], version = "*"}
 pydantic = {extras = ["dotenv"], version = "*"}
 pyjwt = "*"
+alembic = "*"
 
 [requires]
 python_version = "3.6"

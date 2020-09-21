@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from src.app.schemas.login import LoginRequestBody, LoginResponse
 from src.app.handlers.login import LoginHandler
 from src.app.api import auth
-from src.app.db.base import database
+from src.app.models.base import database
 
 router = APIRouter()
 
