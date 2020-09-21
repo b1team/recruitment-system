@@ -13,6 +13,6 @@ class Employer(Base):
     code = Column(types.Text, nullable=False, unique=True, index=True)
     description = Column(types.Text)
     address = Column(types.Text, nullable=False)
-    type = Column(types.Text, default=constants.DEFAULT_EMPLOYER_TYPE),
+    type = Column(types.Text, default=constants.DEFAULT_EMPLOYER_TYPE)
     active = Column(types.Boolean, nullable=False, default=True)
 

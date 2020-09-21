@@ -12,6 +12,11 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+from src.app.config import settings
+config.set_main_option('sqlalchemy.url', settings.POSTGRES_URL)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
