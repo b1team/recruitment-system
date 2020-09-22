@@ -21,10 +21,10 @@ async def check_token(bearer_token: Optional[str] = Header(None, alias="Authoriz
         return decoded
 
 
-def create_token(username: str) -> Token:
+def create_token(identities: dict) -> Token:
     created_at = datetime.utcnow()
-    expire_at = created_at + timedelta(hours=1)
-    payload = Payload(username=username, exp=expire_at, iat=created_at)
+    expire_at = created_at + timedelta(hours=settings.TOKEN_LIFETIME)
+    payload = Payload(**identities, exp=expire_at, iat=created_at)
     access_token = jwt.encode(payload.dict(), key=settings.TOKEN_SECRET_KEY, algorithm="HS256")
     token = Token(access_token=access_token,
                   expire_at=expire_at,

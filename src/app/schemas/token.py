@@ -1,9 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 
 
 class Payload(BaseModel):
-    username: str
+    id: int
+    email: EmailStr
+    user_type: str
+    name: Optional[str] = None
     exp: datetime
     iat: datetime
 

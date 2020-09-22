@@ -1,20 +1,25 @@
 from fastapi import APIRouter, HTTPException
 from src.app.schemas.login import LoginRequestBody, LoginResponse
-from src.app.handlers.login import LoginHandler
 from src.app.api import auth
-#from src.app.models.base import database
+from src.app.models import User
+from src.app.db.session import session_scope
 
 router = APIRouter()
 
 
 @router.post("/login", response_model=LoginResponse)
 async def login(user: LoginRequestBody):
-    login_handler = LoginHandler(database)
-    user_in_db = login_handler.check_user(user)
-    user_in_db = {"password": "1", "username": "vuonglv"}
-    # TODO: Get user
-    if not user_in_db or user_in_db.get("password") != user.password:
-        raise HTTPException(status_code=401, detail="Username or password is incorrect!")
-
-    token = auth.create_token(username=user.username)
-    return LoginResponse(**token.dict(), username=user.username)
+    with session_scope() as db:
+        db_user = db.query(User).filter(User.email == user.email, User.password == user.password).first()
+        if not db_user:
+            raise HTTPException(status_code=401, detail="Email or Password is incorrect")
+        
+        payload = {
+            "id": db_user.id,
+            "email": db_user.email,
+            "name": db_user.name,
+            "user_type": db_user.user_type
+        }
+        token = auth.create_token(payload)
+        response = LoginResponse(**token.dict(), **payload)
+        return response
