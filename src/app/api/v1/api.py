@@ -5,10 +5,12 @@ from .endpoints import jobs
 from .endpoints import skills
 from .endpoints import users
 from .endpoints import login
+from .endpoints import register
 
 router = APIRouter()
 
 router.include_router(login.router, tags=["login"])
+router.include_router(register.router, tags=["register"])
 router.include_router(users.router, tags=["users"])
 router.include_router(skills.router, tags=["skills"])
 router.include_router(jobs.router, tags=["jobs"])

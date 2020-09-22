@@ -12,7 +12,7 @@ uvicorn = "*"
 gunicorn = "*"
 sqlalchemy = "*"
 databases = {extras = ["postgresql"], version = "*"}
-pydantic = {extras = ["dotenv"], version = "*"}
+pydantic = {extras = ["email"], version = "*"}
 pyjwt = "*"
 alembic = "*"
 

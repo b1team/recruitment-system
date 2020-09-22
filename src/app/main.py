@@ -5,7 +5,7 @@ from src.app.api.v1 import api as api_v1
 
 app = FastAPI()
 
-app.include_router(api_v1.router, prefix="/v1")
+app.include_router(api_v1.router, prefix="/api/v1")
 
 
 @app.get("/")
