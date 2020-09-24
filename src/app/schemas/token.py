@@ -3,11 +3,14 @@ from datetime import datetime
 from typing import Optional
 
 
-class Payload(BaseModel):
+class Identities(BaseModel):
     id: int
     email: EmailStr
     user_type: str
     name: Optional[str] = None
+
+
+class Payload(Identities):
     exp: datetime
     iat: datetime
 
