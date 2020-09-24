@@ -2,7 +2,7 @@ from src.app.models.base import Base
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import types
 from sqlalchemy.orm import relationship
-from src.app.models.job_tag import job_tags
+from src.app.models.job_tag import JobTag
 
 
 class Job(Base):
@@ -11,6 +11,6 @@ class Job(Base):
     salary = Column(types.Float, nullable=False)
     address = Column(types.Text, nullable=False)
     description = Column(types.Text, nullable=False)
-    job_tags = relationship("JobTag", secondary=job_tags)
+    tags = relationship("Tag", secondary=JobTag)
     applies = relationship("Apply", backref="job")
     employer_id = Column(types.Integer, ForeignKey("employers.id"), nullable=False)
