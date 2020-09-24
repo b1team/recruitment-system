@@ -28,9 +28,7 @@ def token_status(db, user_id, token_updated):
     if not user:
         return False
     user_updated_time = user.updated_at.isoformat()
-    if user_updated_time != token_updated:
-        return False
-    return True
+    return user_updated_time == token_updated
 
 
 def get_user_updated_time(user_id):
