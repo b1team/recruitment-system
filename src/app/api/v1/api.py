@@ -6,11 +6,13 @@ from .endpoints import skills
 from .endpoints import users
 from .endpoints import login
 from .endpoints import register
+from .endpoints import upgrade
 
 router = APIRouter()
 
 router.include_router(login.router, tags=["login"])
 router.include_router(register.router, tags=["register"])
+router.include_router(upgrade.router, tags=["upgrade"])
 router.include_router(users.router, tags=["users"])
 router.include_router(skills.router, tags=["skills"])
 router.include_router(jobs.router, tags=["jobs"])

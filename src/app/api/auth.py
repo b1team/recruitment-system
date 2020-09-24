@@ -3,12 +3,12 @@ from typing import Optional
 import jwt
 from jwt.exceptions import InvalidTokenError
 from src.app.config import settings
-from src.app.schemas.token import Token, Payload
+from src.app.schemas.token import Token, Payload, Identities
 from datetime import datetime, timedelta
 
 
-async def check_token(bearer_token: Optional[str] = Header(None, alias="Authorization")):
-    if not bearer_token or not bearer_token.startswith("Bearer "):
+def check_token(bearer_token: str = Header(..., alias="Authorization")):
+    if not bearer_token.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied")
     _, _, token = bearer_token.partition("Bearer ")
     if not token:
@@ -18,7 +18,7 @@ async def check_token(bearer_token: Optional[str] = Header(None, alias="Authoriz
     except InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied")
     else:
-        return decoded
+        return Identities(**decoded)
 
 
 def create_token(identities: dict) -> Token:
