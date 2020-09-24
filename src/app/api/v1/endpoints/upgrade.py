@@ -14,12 +14,12 @@ from src.app.crud.employer import CRUDemployer
 from src.app.crud.employee import CRUDemployee
 
 from src.app.constants import UserType
+from src.app.api.auth import token_status
 
 router = APIRouter()
 
 
 def check_requests_body(payload, identities):
-    print(identities.user_type)
     if identities.id != payload.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     if identities.user_type != UserType.viewer.value:
@@ -28,12 +28,18 @@ def check_requests_body(payload, identities):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
 
+def check_token_status(db, payload, identities):
+    if not token_status(db, payload.user_id, identities.updated):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Old token")
+
+
 @router.post("/upgrade/employee")
 async def upgrade(payload: PayloadEmployee, identities: Identities = Depends(auth.check_token)):
     check_requests_body(payload, identities)
     if payload.user_type != UserType.employee.value:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     with session_scope() as db:
+        check_token_status(db, payload, identities)
         crud = CRUDemployee(db)
         crud.create(EmployeeBase(**payload.dict()))
         user = db.query(User).filter(User.id == payload.user_id).first()
@@ -48,6 +54,7 @@ async def upgrade(payload: PayloadEmployer, identities: Identities = Depends(aut
     if payload.user_type != UserType.employer.value:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     with session_scope() as db:
+        check_token_status(db, payload, identities)
         crud = CRUDemployer(db)
         crud.create(EmployerBase(**payload.dict()))
         user = db.query(User).filter(User.id == payload.user_id).first()

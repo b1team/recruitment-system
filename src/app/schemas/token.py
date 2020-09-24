@@ -8,6 +8,7 @@ class Identities(BaseModel):
     email: EmailStr
     user_type: str
     name: Optional[str] = None
+    updated: str
 
 
 class Payload(Identities):
