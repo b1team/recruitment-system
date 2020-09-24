@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy import Column
 from sqlalchemy import func, types
@@ -13,5 +15,5 @@ class Base(BaseRoot):
     #     return cls.__name__.lower()
 
     id = Column(types.Integer, primary_key=True, index=True)
-    created_at = Column(types.DateTime, server_default=func.now())
-    updated_at = Column(types.DateTime, server_default=func.now(), server_onupdate=func.now())
+    created_at = Column(types.DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(types.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
