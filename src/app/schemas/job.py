@@ -8,12 +8,12 @@ class JobBase(BaseModel):
     address: str
     description: str
     is_open: bool = True
+    tags: List[str]
 
 
 class JobModel(JobBase):
-    tags: List[str]
+    employer_id: int
 
 
 class JobPublicInfo(JobModel):
     id: int
-    employer_id: int

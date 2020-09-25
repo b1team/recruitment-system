@@ -1,11 +1,17 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, Depends
+from src.app.db.session import session_scope
+from src.app.crud.job import CRUDJob
+from src.app.schemas.job import JobBase, JobPublicInfo
+from src.app.api import auth
 
 router = APIRouter()
 
 
-@router.post("/jobs")
-async def create_job():
-    ...
+@router.post("/jobs", response_model=JobPublicInfo)
+async def create_job(job: JobBase = Body(...), identities=Depends(auth.check_token)):
+    with session_scope() as db:
+        crud = CRUDJob(db)
+        crud.create()
 
 
 @router.get("/jobs")
