@@ -14,7 +14,6 @@ from src.app.crud.employer import CRUDemployer
 from src.app.crud.employee import CRUDemployee
 
 from src.app.constants import UserType
-from src.app.api.auth import is_out_of_date
 
 from src.app.exceptions import *
 
