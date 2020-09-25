@@ -1,5 +1,3 @@
-from sqlalchemy.orm.collections import attribute_mapped_collection
-
 from src.app.models.base import Base
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import types
