@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 
+
 class NotFoundError(HTTPException):
     def __init__(self, object_name):
         message = f"{object_name} not found"
@@ -29,6 +30,7 @@ class ApplyNotFoundError(NotFoundError):
         object_name = f"Apply: {info}"
         super().__init__(object_name)
 
+
 class AuthenError(HTTPException):
     def __init__(self):
         message = 'Access denied!!'
@@ -43,7 +45,6 @@ class AuthorizationError(HTTPException):
 class BadRequestsError(HTTPException):
     def __init__(self, message="Bad requests"):
         super().__init__(status.HTTP_400_BAD_REQUEST, detail=message)
-
 
 
 AuthenticationError = AuthenError()
