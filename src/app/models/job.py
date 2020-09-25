@@ -11,6 +11,7 @@ class Job(Base):
     salary = Column(types.Float, nullable=False)
     address = Column(types.Text, nullable=False)
     description = Column(types.Text, nullable=False)
+    is_open = Column(types.Boolean, nullable=False, default=True)
     tags = relationship("Tag", secondary=JobTag)
     applies = relationship("Apply", backref="job")
     employer_id = Column(types.Integer, ForeignKey("employers.id"), nullable=False)
