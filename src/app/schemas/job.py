@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class JobBase(BaseModel):
@@ -11,9 +11,23 @@ class JobBase(BaseModel):
     tags: List[str]
 
 
+class UpdateJobModel(BaseModel):
+    title: Optional[str] = None
+    salary: Optional[float] = None
+    address: Optional[str] = None
+    description: Optional[str] = None
+    is_open: Optional[bool] = None
+    tags: Optional[List[str]] = None
+
+
 class JobModel(JobBase):
     employer_id: int
 
 
 class JobPublicInfo(JobModel):
-    id: int
+    id: Optional[int] = None
+
+
+class ListJobPublic(BaseModel):
+    jobs: List[JobPublicInfo]
+    total: int

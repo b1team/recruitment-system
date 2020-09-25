@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import copy
 
 from sqlalchemy.orm.session import Session
@@ -27,27 +27,46 @@ class CRUDJob:
     def get(self, job_id: int):
         job = self.db.query(Job).get(job_id)
         if not job:
-            raise JobNotFoundError()
+            raise JobNotFoundError(job_id)
         tags = [t.name for t in job.tags]
         job_info = dict(job.__dict__)
         job_info["tags"] = tags
         return JobPublicInfo(**job_info)
 
-    def get_many(self, job_ids: List[int]):
-        jobs = self.db.query(Job).filter(Job.id.in_(job_ids))
+    def get_many(self, job_ids: Optional[List[int]] = None,
+                 offset: Optional[int] = None,
+                 limit: Optional[int] = None):
+        jobs = self.db.query(Job)
+        total = jobs.count()
+        if job_ids:
+            jobs = jobs.filter(Job.id.in_(job_ids))
         results = []
+        if offset:
+            jobs = jobs.offset(offset)
+        if limit:
+            jobs = jobs.limit(limit)
         for job in jobs:
             tags = [t.name for t in job.tags]
             job_info = dict(job.__dict__)
             job_info["tags"] = tags
             results.append(JobPublicInfo(**job_info))
-        return results
+        return results, total
 
     def update(self, job_id: int, **info):
+        exclude_fields = {"tags"}
         job = self.db.query(Job).get(job_id)
         if not job:
             raise JobNotFoundError()
+        if "tags" in info:
+            tag_crud = CRUDTag(self.db)
+            not_exist_tags = tag_crud.get_not_exist_tags(info["tags"])
+            if not_exist_tags:
+                tag_crud.create_many(not_exist_tags)
+            tags = tag_crud.get_many(info["tags"])
+            job.tags = tags.all()
         for key, value in info.items():
+            if key in exclude_fields:
+                continue
             if hasattr(job, key):
                 setattr(job, key, value)
         self.db.add(job)
