@@ -8,32 +8,38 @@ from datetime import datetime, timedelta
 from src.app.models import User
 from src.app.db.session import session_scope, Session
 
+from src.app.exceptions import AuthenticationError
+
 
 def check_token(bearer_token: str = Header(..., alias="Authorization")):
     if not bearer_token.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied")
+        raise AuthenticationError
     _, _, token = bearer_token.partition("Bearer ")
     if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied")
+        raise AuthenticationError
     try:
         decoded = jwt.decode(token, settings.TOKEN_SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied")
+        raise AuthenticationError
     else:
-        return Identities(**decoded)
+        identities = Identities(**decoded)
+        with session_scope() as db:
+            if is_out_of_date(db, identities):
+                raise AuthenticationError
+        return identities
 
 
-def token_status(db, user_id, token_updated):
-    user = db.query(User).filter(User.id==user_id).first()
+def is_out_of_date(db, identities):
+    user = db.query(User.updated_at).filter(User.id == identities.id).first()
     if not user:
         return False
     user_updated_time = user.updated_at.isoformat()
-    return user_updated_time == token_updated
+    return user_updated_time != identities.updated
 
 
 def get_user_updated_time(user_id):
     with session_scope() as db:
-        user = db.query(User).filter(User.id == user_id).first()
+        user = db.query(User.updated_at).filter(User.id == user_id).first()
         updated = user.updated_at.isoformat()
         return updated
         
