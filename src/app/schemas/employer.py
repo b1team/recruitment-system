@@ -1,8 +1,16 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class EmployerBase(BaseModel):
-    user_id: int
+
+class EmployerUpdate(BaseModel):
+    name: Optional[str] = None
+    code: Optional[str] = None
+    description: str
+    address: str
+    type: str
+
+
+class EmployerCreate(BaseModel):
     name: Optional[str] = None
     code: Optional[str] = None
     description: str
@@ -11,5 +19,5 @@ class EmployerBase(BaseModel):
     active: bool
 
 
-
-
+class EmployerInDB(EmployerCreate):
+    user_id: int

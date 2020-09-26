@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from src.app.db.constants import ApplyStatus
 
 
 class ApplyBase(BaseModel):
@@ -11,3 +12,9 @@ class ApplyBase(BaseModel):
 
 class ApplyInDB(ApplyBase):
     employee_id: int
+
+
+class PayloadUpdateApply(BaseModel):
+    job_id: int
+    employee_id: int
+    status: Optional[str] = 'pending'

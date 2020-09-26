@@ -1,38 +1,90 @@
-from src.app.models import Employer, Apply, Job
+from typing import List, Optional
 from sqlalchemy.orm.session import Session
-from src.app.schemas.employer import EmployerBase
-from src.app.exceptions import NotFoundError
+
+from src.app.models import Employer, Apply, Job
+from src.app.schemas.employer import EmployerInDB
+
+from src.app.schemas.filters.apply import ApplyFilter
+from src.app.schemas.filters.employee import EmployeeFilter
+from src.app.schemas.filters.job import JobFilter
+
+from src.app.exceptions import NotFoundError, EmployerNotFoundError
 
 
 class CRUDemployer:
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self.db = session
     
-    def create(self, employer: EmployerBase):
+    def create(self, employer: EmployerInDB):
         new_employer = Employer(**employer.dict())
         self.db.add(new_employer)
     
-    def get_applied_job(self, employer_id: int):
-        result = self.db.query(Apply, Job).join(Apply.job).filter_by(employer_id=employer_id).all()
-        if not result:
-            raise NotFoundError("Applied job is")
-        applied_jobs_info = [
-             {
-                "job": {
-                    "id":job.id,
-                    "title":job.title,
-                    "salary":job.salary,
-                    "description":job.description,
-                    "address":job.address,
-                    "employer_id":job.employer_id,
-                    "is_open":job.is_open
-                },
-                "apply": {
+    def get_applied_job(self, employer_id: int,
+                        applied: ApplyFilter,
+                        employee: EmployeeFilter,
+                        job: JobFilter):
+        result = self.db.query(Apply, Job).join(Apply.job).filter(Job.employer_id==employer_id)
+        if job.only_open_job:
+            result = result.filter(Job.is_open == True)
+        if applied.apply_status:
+            result = result.filter(Apply.status.in_(applied.apply_status))
+        if employee.employee_id:
+            result = result.filter(Apply.employee_id == employee.employee_id)
+
+        if not result.first():
+            raise NotFoundError("Applied")
+        job_applied_mapping = dict()
+        for apply, job in result:
+            if job.id not in job_applied_mapping:
+                job_applied_mapping[job.id]={
+                    "job": {
+                        "id":job.id,
+                        "title":job.title,
+                        "salary":job.salary,
+                        "description":job.description,
+                        "address":job.address,
+                        "employer_id":job.employer_id,
+                        "is_open":job.is_open
+                    },
+                    "applied": [{
+                        "status":apply.status.value,
+                        "employee_id":apply.employee_id,
+                        "description": apply.description,
+                        "cv": apply.cv
+                    }]
+                }
+            else:
+                job_applied_mapping[job.id]['applied'].append({
                     "status":apply.status.value,
                     "employee_id":apply.employee_id,
                     "description": apply.description,
                     "cv": apply.cv
-                    }
-            }
-            for apply, job in result]
-        return applied_jobs_info
+                })
+       
+        return list(job_applied_mapping.values())
+
+    def update(self, employer_id: int, **employer_info):
+        employer = self.db.query(Employer).get(employer_id)
+        if not employer:
+            raise EmployerNotFoundError(employer_id)
+        for key, value in employer_info.items():
+            if hasattr(employer, key):
+                setattr(employer, key, value)
+        self.db.add(employer)
+
+    def update_apply_status(self, employer_id: int,
+                            job_id: int, 
+                            employee_id: int, status: str):
+
+        result = self.db.query(Apply).join(Apply.job).filter(Job.employer_id==employer_id,
+                                                             Job.id==job_id,
+                                                             Apply.employee_id==employee_id).first()
+        if not result:
+            raise NotFoundError('Applied job')
+        result.status = status
+        self.db.add(result)
+
+        
+
+
+
