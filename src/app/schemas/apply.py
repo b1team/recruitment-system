@@ -14,6 +14,11 @@ class ApplyInDB(ApplyBase):
     employee_id: int
 
 
+class EmployeeUpdateApplyModel(BaseModel):
+    description: Optional[str] = None
+    cv: Optional[str] = None
+
+      
 class PayloadUpdateApply(BaseModel):
     job_id: int
     employee_id: int
