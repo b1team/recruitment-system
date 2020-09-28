@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, Query
 from typing import Optional, List
 from src.app.api.dependencies import apply_filter, employee_filter, job_filter
 
@@ -26,6 +26,8 @@ router = APIRouter()
 
 @router.get('/employers/{employer_id}/applies')
 async def applied_jobs(employer_id: Optional[int],
+                       offset: Optional[int] = Query(None, gte=0),
+                       limit: Optional[int] = Query(None, gte=0),
                        applied: ApplyFilter = Depends(apply_filter),
                        employee: EmployeeFilter = Depends(employee_filter),
                        job: JobFilter = Depends(job_filter),
@@ -41,9 +43,13 @@ async def applied_jobs(employer_id: Optional[int],
             raise BadRequestsError("employer_id is not legal")
         if user.user_id != identities.id:
             raise AuthenticationError
-        applied_jobs_info = crud.get_applied_job(employer_id, applied, employee, job)
+        applied_jobs_info, total = crud.get_applied_job(employer_id, offset, 
+                                                        limit, applied, employee, job)
 
-    return applied_jobs_info
+    return {
+        "applied": applied_jobs_info,
+        "total": total
+    }
 
 
 @router.put('/employers/{employer_id}/applies')

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from typing import Optional
 
 from src.app.db.session import session_scope
@@ -25,7 +25,10 @@ def check_requests_body(identities):
 
 
 @router.get('/employees/{employee_id}/applies')
-async def applied_jobs(employee_id: Optional[int], applied: ApplyFilter = Depends(apply_filter),
+async def applied_jobs(employee_id: Optional[int],
+                       offset: Optional[int] = Query(None, gte=0),
+                       limit: Optional[int] = Query(None, gte=0),
+                       applied: ApplyFilter = Depends(apply_filter),
                        identities: Identities = Depends(auth.check_token)):
 
     if identities.user_type != UserType.employee.value:
@@ -40,8 +43,12 @@ async def applied_jobs(employee_id: Optional[int], applied: ApplyFilter = Depend
         if user.user_id != identities.id:
             raise AuthenticationError
 
-        applied_jobs_info = crud.get_applied_job(employee_id, applied=applied)
-    return applied_jobs_info
+        applied_jobs_info, total = crud.get_applied_job(employee_id, applied=applied,
+                                                        offset=offset, limit=limit)
+    return {
+        'applied_job': applied_jobs_info,
+        'total': total
+    }
 
 
 @router.post("/employees")
