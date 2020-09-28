@@ -8,6 +8,8 @@ from src.app.api import auth
 from src.app.exceptions import *
 from src.app.constants import UserType
 from src.app.models import Employer, Job
+from src.app.schemas.filters.job import JobFilter
+from src.app.api.dependencies import job_filter
 
 router = APIRouter()
 
@@ -29,10 +31,11 @@ async def create_job(job_info: JobBase = Body(...), identities=Depends(auth.chec
 
 @router.get("/jobs", response_model=ListJobPublic)
 async def get_all_jobs(offset: Optional[int] = Query(None, gte=0),
-                       limit: Optional[int] = Query(None, gte=0)):
+                       limit: Optional[int] = Query(None, gte=0),
+                       job: JobFilter = Depends(job_filter)):
     with session_scope() as db:
         crud = CRUDJob(db)
-        jobs, total = crud.get_many(offset=offset, limit=limit)
+        jobs, total = crud.get_many(offset=offset, limit=limit, job_filter=job)
     return {
         "jobs": jobs,
         "total": total
