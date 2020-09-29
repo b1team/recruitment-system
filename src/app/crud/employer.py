@@ -20,10 +20,17 @@ class CRUDemployer:
         self.db.add(new_employer)
     
     def get_applied_job(self, employer_id: int,
+                        offset: Optional[int],
+                        limit: Optional[int],
                         applied: ApplyFilter,
                         employee: EmployeeFilter,
                         job: JobFilter):
         result = self.db.query(Apply, Job).join(Apply.job).filter(Job.employer_id==employer_id)
+        total = result.count()
+        if offset:
+            result = result.offset(offset)
+        if limit:
+            result = result.limit(limit)
         if job.only_open_job:
             result = result.filter(Job.is_open == True)
         if applied.apply_status:
@@ -61,7 +68,7 @@ class CRUDemployer:
                     "cv": apply.cv
                 })
        
-        return list(job_applied_mapping.values())
+        return list(job_applied_mapping.values()), total
 
     def update(self, employer_id: int, **employer_info):
         employer = self.db.query(Employer).get(employer_id)
