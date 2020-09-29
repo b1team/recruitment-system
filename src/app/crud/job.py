@@ -5,8 +5,10 @@ from sqlalchemy.orm.session import Session
 
 from src.app.exceptions import JobNotFoundError
 from src.app.schemas.job import JobPublicInfo, JobModel
-from src.app.models import Job
+from src.app.models import Job, Employer
 from src.app.crud.tag import CRUDTag
+
+from src.app.schemas.filters.job import JobFilter
 
 
 class CRUDJob:
@@ -35,12 +37,17 @@ class CRUDJob:
 
     def get_many(self, job_ids: Optional[List[int]] = None,
                  offset: Optional[int] = None,
-                 limit: Optional[int] = None):
+                 limit: Optional[int] = None,
+                 job_filter: JobFilter = None):
         jobs = self.db.query(Job)
         total = jobs.count()
         if job_ids:
             jobs = jobs.filter(Job.id.in_(job_ids))
         results = []
+        if job_filter.only_open_job:
+            jobs = jobs.filter(Job.is_open == True)
+        if job_filter.employer_name:
+            jobs = jobs.join(Job.employer).filter(Employer.name == job_filter.employer_name)
         if offset:
             jobs = jobs.offset(offset)
         if limit:
