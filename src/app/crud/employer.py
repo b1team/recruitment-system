@@ -51,9 +51,10 @@ class CRUDemployer:
                         "description":job.description,
                         "address":job.address,
                         "employer_id":job.employer_id,
+                        "tags": [t.name for t in job.tags],
                         "is_open":job.is_open
                     },
-                    "applied": [{
+                    "applies": [{
                         "status":apply.status.value,
                         "employee_id":apply.employee_id,
                         "description": apply.description,
@@ -61,7 +62,7 @@ class CRUDemployer:
                     }]
                 }
             else:
-                job_applied_mapping[job.id]['applied'].append({
+                job_applied_mapping[job.id]['applies'].append({
                     "status":apply.status.value,
                     "employee_id":apply.employee_id,
                     "description": apply.description,
