@@ -29,6 +29,7 @@ async def login(user: LoginRequestBody):
             "id": db_user.id,
             "email": db_user.email,
             "name": db_user.name,
+            "phone_number": db_user.phone_number,
             "user_type": db_user.user_type
         }
         
