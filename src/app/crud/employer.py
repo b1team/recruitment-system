@@ -55,6 +55,7 @@ class CRUDemployer:
                         "is_open":job.is_open
                     },
                     "applies": [{
+                        "id": apply.id,
                         "status":apply.status.value,
                         "employee_id":apply.employee_id,
                         "description": apply.description,
@@ -63,6 +64,7 @@ class CRUDemployer:
                 }
             else:
                 job_applied_mapping[job.id]['applies'].append({
+                    "id": apply.id,
                     "status":apply.status.value,
                     "employee_id":apply.employee_id,
                     "description": apply.description,
