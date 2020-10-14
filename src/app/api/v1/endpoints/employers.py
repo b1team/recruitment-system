@@ -71,10 +71,10 @@ async def update_applied_job(employer_id: Optional[int],
             raise BadRequestsError("employer_id is not legal")
         if user.user_id != identities.id:
             raise AuthenticationError
-        crud.update_apply_status(employer_id, payload.job_id,
-                                 payload.employee_id, payload.status)
+        crud.update_apply_status(payload.apply_id, payload.status)
     return {
         "status": "updated",
+        "apply_id": payload.apply_id,
         "employer_id": employer_id,
         "updated": f"apply status to {payload.status}"
     }
