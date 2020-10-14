@@ -9,6 +9,8 @@ class Identities(BaseModel):
     user_type: str
     name: Optional[str] = None
     updated: str
+    employer_id: Optional[int] = None
+    employee_id: Optional[int] = None
 
 
 class Payload(Identities):
