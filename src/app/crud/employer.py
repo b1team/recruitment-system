@@ -1,3 +1,4 @@
+from src.app.models import apply
 from typing import List, Optional
 from sqlalchemy.orm.session import Session
 
@@ -82,13 +83,9 @@ class CRUDemployer:
                 setattr(employer, key, value)
         self.db.add(employer)
 
-    def update_apply_status(self, employer_id: int,
-                            job_id: int, 
-                            employee_id: int, status: str):
+    def update_apply_status(self, apply_id: int, status: str):
 
-        result = self.db.query(Apply).join(Apply.job).filter(Job.employer_id==employer_id,
-                                                             Job.id==job_id,
-                                                             Apply.employee_id==employee_id).first()
+        result = self.db.query(Apply).get(apply_id)
         if not result:
             raise NotFoundError('Applied job')
         result.status = status
