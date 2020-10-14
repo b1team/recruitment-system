@@ -11,6 +11,8 @@ class LoginRequestBody(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     id: int
+    name: Optional[str] = None
+    phone_number: Optional[str] = None
     email: EmailStr
     user_type: str
     expire_at: datetime
