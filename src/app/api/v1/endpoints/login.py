@@ -1,10 +1,21 @@
 from fastapi import APIRouter, HTTPException
 from src.app.schemas.login import LoginRequestBody, LoginResponse
 from src.app.api import auth
-from src.app.models import User
+from src.app.models import User, Employee, Employer
 from src.app.db.session import session_scope
 
 router = APIRouter()
+
+
+user_type_models_mapping = {
+    "employee": Employee,
+    "employer": Employer
+}
+
+user_type_fields_mapping = {
+    "employee": "employee_id",
+    "employer": "employer_id"
+}
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -20,6 +31,14 @@ async def login(user: LoginRequestBody):
             "name": db_user.name,
             "user_type": db_user.user_type
         }
+        
+        UserTypeModel = user_type_models_mapping.get(db_user.user_type)
+        if UserTypeModel:
+            user_type = db.query(UserTypeModel.id).filter(UserTypeModel.user_id == db_user.id).first()
+            if user_type:
+                field_name = user_type_fields_mapping[db_user.user_type]
+                payload.update({field_name: user_type.id})
+        
         token = auth.create_token(payload)
         response = LoginResponse(**token.dict(), **payload)
         return response

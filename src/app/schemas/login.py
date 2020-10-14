@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 
 
 class LoginRequestBody(BaseModel):
@@ -14,3 +15,5 @@ class LoginResponse(BaseModel):
     user_type: str
     expire_at: datetime
     created_at: datetime
+    employer_id: Optional[int] = None
+    employee_id: Optional[int] = None
