@@ -4,6 +4,7 @@ from src.app.db.constants import ApplyStatus
 
 
 class ApplyBase(BaseModel):
+    id: int
     job_id: int
     description: Optional[str] = None
     cv: str

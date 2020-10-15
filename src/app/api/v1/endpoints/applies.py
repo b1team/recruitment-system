@@ -80,3 +80,14 @@ async def delete_apply(apply_id: str, identities: Identities = Depends(auth.chec
         "status": "deleted",
         "apply_id": apply_id
     }
+
+@router.get("/applies/{apply_id}")
+async def get_apply(apply_id: str, identities: Identities = Depends(auth.check_token)):
+    if identities.user_type not in {UserType.employee.value, UserType.employer.value}:
+        raise AuthorizationError()
+    apply = None
+    with session_scope() as db:
+        apply = db.query(Apply).filter(Apply.id == apply_id).first()
+        if not apply:
+            raise ApplyNotFoundError(apply_id)
+        return ApplyBase(id=apply.id, job_id=apply.job_id, description=apply.description, cv=apply.cv, status=apply.status.value)
