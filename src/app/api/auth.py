@@ -8,24 +8,25 @@ from datetime import datetime, timedelta
 from src.app.models import User
 from src.app.db.session import session_scope, Session
 
-from src.app.exceptions import AuthenticationError
+from src.app.exceptions import AuthenticationError, AuthenError
 
 
 def check_token(bearer_token: str = Header(..., alias="Authorization")):
     if not bearer_token.startswith("Bearer "):
-        raise AuthenticationError
+        raise AuthenError("Header token missing Bearer")
     _, _, token = bearer_token.partition("Bearer ")
     if not token:
-        raise AuthenticationError
+        raise AuthenError("Header token missing access_token")
     try:
         decoded = jwt.decode(token, settings.TOKEN_SECRET_KEY, algorithms=["HS256"])
-    except InvalidTokenError:
-        raise AuthenticationError
+    except InvalidTokenError as ex:
+        print(ex)
+        raise AuthenError("Token invalid")
     else:
         identities = Identities(**decoded)
         with session_scope() as db:
             if is_out_of_date(db, identities):
-                raise AuthenticationError
+                raise AuthenError("Token out of date")
         return identities
 
 
