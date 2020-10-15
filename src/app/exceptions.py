@@ -32,8 +32,11 @@ class ApplyNotFoundError(NotFoundError):
 
 
 class AuthenError(HTTPException):
-    def __init__(self):
-        message = 'Access denied!!'
+    def __init__(self, msg):
+        if not msg:
+            message = 'Access denied!!'
+        else:
+            message = msg
         super().__init__(status.HTTP_401_UNAUTHORIZED, detail=message)
 
 
