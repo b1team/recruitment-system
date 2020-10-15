@@ -32,7 +32,7 @@ class ApplyNotFoundError(NotFoundError):
 
 
 class AuthenError(HTTPException):
-    def __init__(self, msg):
+    def __init__(self, msg = None):
         if not msg:
             message = 'Access denied!!'
         else:
