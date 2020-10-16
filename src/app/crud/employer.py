@@ -39,8 +39,6 @@ class CRUDemployer:
         if employee.employee_id:
             result = result.filter(Apply.employee_id == employee.employee_id)
 
-        if not result.first():
-            raise NotFoundError("Applied")
         job_applied_mapping = dict()
         for apply, job in result:
             if job.id not in job_applied_mapping:

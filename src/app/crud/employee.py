@@ -26,8 +26,6 @@ class CRUDemployee:
             result = result.limit(limit)
         if applied.apply_status:
             result = result.filter(Apply.status.in_(applied.apply_status))
-        if not result.first():
-            raise NotFoundError("Applied")
         applied_jobs_info = [
              {
                 "job": {
