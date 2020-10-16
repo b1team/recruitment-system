@@ -23,3 +23,10 @@ class EmployeeUpdateApplyModel(BaseModel):
 class PayloadUpdateApply(BaseModel):
     apply_id: int
     status: Optional[str] = 'pending'
+
+
+class CreateApplyPayload(BaseModel):
+    job_id: int
+    description: Optional[str] = None
+    cv: str
+    status: Optional[str] = 'pending'

@@ -5,7 +5,7 @@ from src.app.schemas.token import Identities
 from src.app.api import auth
 from src.app.models import Employee, Job
 
-from src.app.schemas.apply import ApplyInDB, ApplyBase, EmployeeUpdateApplyModel
+from src.app.schemas.apply import ApplyInDB, ApplyBase, EmployeeUpdateApplyModel, CreateApplyPayload
 from src.app.constants import UserType
 from src.app.crud.apply import CRUDApply
 from src.app.models import Apply
@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.post('/applies')
-async def apply_job(payload: ApplyBase, identities: Identities = Depends(auth.check_token)):
+async def apply_job(payload: CreateApplyPayload, identities: Identities = Depends(auth.check_token)):
     if identities.user_type != UserType.employee.value:
         raise AuthenticationError
 
