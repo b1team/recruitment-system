@@ -40,7 +40,10 @@ class CRUDemployee:
                     "is_open":job.is_open
                 },
                 "apply": {
+                    "id": apply.id,
                     "status":apply.status.value,
+                    "description": apply.description,
+                    "cv": apply.cv,
                     "employee_id":apply.employee_id
                     }
             }
