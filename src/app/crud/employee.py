@@ -36,6 +36,7 @@ class CRUDemployee:
                     "salary":job.salary,
                     "description":job.description,
                     "address":job.address,
+                    "tags": [t.name for t in job.tags],
                     "employer_id":job.employer_id,
                     "is_open":job.is_open
                 },
