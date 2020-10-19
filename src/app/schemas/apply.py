@@ -1,12 +1,13 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from src.app.db.constants import ApplyStatus
 
 
 class ApplyJobInfo(BaseModel):
-    id: str
+    id: int
     is_open: bool
+    title: str
     slug: Optional[str] = None
     created_at: Optional[datetime] = None
 
@@ -45,3 +46,19 @@ class CreateApplyPayload(BaseModel):
     job_id: int
     description: Optional[str] = None
     cv: str
+
+
+class ApplyPublicInfo(BaseModel):
+    id: int
+    job_id: int
+    description: Optional[str] = None
+    cv: str
+    status: Optional[str] = 'pending'
+    created_at: datetime
+
+
+class GetJobAppliesResponse(BaseModel):
+    total: int
+    job: ApplyJobInfo
+    applies: List[ApplyPublicInfo]
+    

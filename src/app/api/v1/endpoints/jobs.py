@@ -1,5 +1,6 @@
 from typing import Optional
 from datetime import datetime
+import copy
 
 from slugify import slugify
 
@@ -8,11 +9,13 @@ from src.app.db.session import session_scope
 from src.app.crud.job import CRUDJob
 from src.app.schemas.job import JobPublicInfo, JobModel, ListJobPublic, UpdateJobModel, CreateJobBody
 from src.app.api import auth
-from src.app.exceptions import *
+from src.app.exceptions import AuthorizationError, BadRequestsError, AuthenticationError, JobNotFoundError
 from src.app.constants import UserType
 from src.app.models import Employer, Job
 from src.app.schemas.filters.job import JobFilter
 from src.app.api.dependencies import job_filter
+from src.app.schemas.apply import GetJobAppliesResponse, ApplyJobInfo, ApplyPublicInfo
+from src.app.schemas.token import Identities
 
 router = APIRouter()
 
@@ -91,3 +94,23 @@ async def delete(job_id: str, identities=Depends(auth.check_token)):
         "status": "deleted",
         "job_id": job_id
     }
+
+
+@router.get("/jobs/{job_id}/applies", response_model=GetJobAppliesResponse)
+async def get_job_applies(job_id: str, identities: Identities = Depends(auth.check_token)):
+    if identities.user_type != UserType.employer.value or not identities.employer_id:
+        raise AuthorizationError("Bạn không phải nhà tuyển dụng")
+    with session_scope() as db:
+        job_in_db = db.query(Job).get(job_id)
+        if not job_in_db:
+            raise JobNotFoundError(job_id)
+        if job_in_db.employer_id != identities.employer_id:
+            raise AuthorizationError("Bạn không có quyền thao tác với công việc này")
+        job = ApplyJobInfo(**job_in_db.__dict__)
+        applies = []
+        for apply in job_in_db.applies:
+            a = copy.copy(apply.__dict__)
+            a.pop("status")
+            applies.append(ApplyPublicInfo(status=apply.status.value, **a))
+    response = GetJobAppliesResponse(job=job, applies=applies, total=len(applies))
+    return response
