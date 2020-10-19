@@ -16,6 +16,7 @@ databases = {extras = ["postgresql"], version = "*"}
 pydantic = {extras = ["email"], version = "*"}
 pyjwt = "*"
 alembic = "*"
+python-slugify = {extras = ["unidecode"], version = "*"}
 
 [requires]
 python_version = "3.6"

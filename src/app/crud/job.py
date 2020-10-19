@@ -40,7 +40,10 @@ class CRUDJob:
                  limit: Optional[int] = None,
                  job_filter: JobFilter = None):
         jobs = self.db.query(Job)
-        total = jobs.count()
+        if not offset:
+            offset = 0
+        if not limit:
+            limit = 20
         if job_ids:
             jobs = jobs.filter(Job.id.in_(job_ids))
         results = []
@@ -48,10 +51,8 @@ class CRUDJob:
             jobs = jobs.filter(Job.is_open == True)
         if job_filter.employer_name:
             jobs = jobs.join(Job.employer).filter(Employer.name == job_filter.employer_name)
-        if offset:
-            jobs = jobs.offset(offset)
-        if limit:
-            jobs = jobs.limit(limit)
+        total = jobs.count()
+        jobs = jobs.offset(offset).limit(limit)
         for job in jobs:
             tags = [t.name for t in job.tags]
             job_info = dict(job.__dict__)
