@@ -5,7 +5,7 @@ from src.app.schemas.token import Identities
 from src.app.api import auth
 from src.app.models import Employee, Job
 
-from src.app.schemas.apply import ApplyInDB, ApplyBase, EmployeeUpdateApplyModel, CreateApplyPayload
+from src.app.schemas.apply import ApplyInDB, GetApplyResponse, EmployeeUpdateApplyModel, CreateApplyPayload, ApplyJobInfo
 from src.app.constants import UserType
 from src.app.crud.apply import CRUDApply
 from src.app.models import Apply
@@ -81,7 +81,7 @@ async def delete_apply(apply_id: str, identities: Identities = Depends(auth.chec
         "apply_id": apply_id
     }
 
-@router.get("/applies/{apply_id}")
+@router.get("/applies/{apply_id}", response_model=GetApplyResponse)
 async def get_apply(apply_id: str, identities: Identities = Depends(auth.check_token)):
     if identities.user_type not in {UserType.employee.value, UserType.employer.value}:
         raise AuthorizationError()
@@ -90,4 +90,5 @@ async def get_apply(apply_id: str, identities: Identities = Depends(auth.check_t
         apply = db.query(Apply).filter(Apply.id == apply_id).first()
         if not apply:
             raise ApplyNotFoundError(apply_id)
-        return ApplyBase(id=apply.id, job_id=apply.job_id, description=apply.description, cv=apply.cv, status=apply.status.value)
+        job = ApplyJobInfo(**apply.job.__dict__)
+        return GetApplyResponse(id=apply.id, job=job, description=apply.description, cv=apply.cv, status=apply.status.value, created_at=apply.created_at)
