@@ -1,9 +1,12 @@
 from typing import Optional
+from datetime import datetime
+
+from slugify import slugify
 
 from fastapi import APIRouter, Body, Depends, Query
 from src.app.db.session import session_scope
 from src.app.crud.job import CRUDJob
-from src.app.schemas.job import JobBase, JobPublicInfo, JobModel, ListJobPublic, UpdateJobModel
+from src.app.schemas.job import JobPublicInfo, JobModel, ListJobPublic, UpdateJobModel, CreateJobBody
 from src.app.api import auth
 from src.app.exceptions import *
 from src.app.constants import UserType
@@ -15,7 +18,7 @@ router = APIRouter()
 
 
 @router.post("/jobs", response_model=JobPublicInfo)
-async def create_job(job_info: JobBase = Body(...), identities=Depends(auth.check_token)):
+async def create_job(job_info: CreateJobBody = Body(...), identities=Depends(auth.check_token)):
     if identities.user_type != UserType.employer.value:
         raise AuthorizationError()
 
@@ -24,7 +27,9 @@ async def create_job(job_info: JobBase = Body(...), identities=Depends(auth.chec
         if not employer:
             raise BadRequestsError("User is not employer")
         crud = CRUDJob(db)
-        job = JobModel(**job_info.dict(), employer_id=employer.id)
+        now = str(int(datetime.utcnow().timestamp()))
+        slug = "-".join([slugify(job_info.title), now])
+        job = JobModel(**job_info.dict(), slug=slug, employer_id=employer.id)
         crud.create(job)
     return job
 
