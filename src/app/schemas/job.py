@@ -57,3 +57,8 @@ class GetJobResponse(BaseModel):
     description: str
     tags: List[str]
     employer_id: str
+
+
+class GetEmployerJobsResponse(BaseModel):
+    total: int
+    jobs: List[JobPublicInfo]

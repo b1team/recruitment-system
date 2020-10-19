@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Body, Query
 from typing import Optional, List
-from src.app.api.dependencies import apply_filter, employee_filter, job_filter
+from src.app.api.dependencies import apply_filter, employee_filter, job_filter, employer_jobs_filter
 
 from src.app.db.session import session_scope
 from src.app.schemas.token import Identities
@@ -9,8 +9,9 @@ from src.app.api import auth
 from src.app.models import Apply, Job, Employer, User
 from src.app.db.constants import ApplyStatus
 from src.app.constants import UserType
-from src.app.exceptions import BadRequestsError, AuthenticationError
+from src.app.exceptions import BadRequestsError, AuthenticationError, AuthorizationError, AuthenError
 from src.app.crud.employer import CRUDemployer
+from src.app.crud.job import CRUDJob
 
 from src.app.schemas.filters.apply import ApplyFilter
 from src.app.schemas.filters.employee import EmployeeFilter
@@ -18,6 +19,7 @@ from src.app.schemas.filters.job import JobFilter
 
 from src.app.schemas.apply import PayloadUpdateApply
 from src.app.schemas.employer import EmployerUpdate
+from src.app.schemas.job import GetEmployerJobsResponse
 from src.app.schemas.employer import EmployerCreate, EmployerInDB
 
 router = APIRouter()
@@ -125,4 +127,18 @@ async def upgrade(payload: EmployerCreate, identities: Identities = Depends(auth
     }
 
 
+@router.get("/employers/{employer_id}/jobs", response_model=GetEmployerJobsResponse)
+async def get_employer_jobs(employer_id: int, identities: Identities = Depends(auth.check_token),
+                  offset: Optional[int] = Query(None, gte=0),
+                  limit: Optional[int] = Query(None, gte=0),
+                  job_filters: JobFilter = Depends(employer_jobs_filter)):
+    if identities.user_type != UserType.employer.value:
+        raise AuthorizationError("Bạn không phải nhà tuyển dụng")
+    if identities.employer_id != employer_id:
+        raise AuthorizationError("Bạn không thể quản lý công việc của nhà tuyển dụng khác")
+    with session_scope() as db:
+        crud_job = CRUDJob(db)
+        job_filters.employer_id = employer_id
+        jobs, total = crud_job.get_many(offset=offset, limit=limit, job_filter=job_filters)
+    return GetEmployerJobsResponse(jobs=jobs, total=total)
 

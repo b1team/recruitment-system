@@ -49,10 +49,12 @@ class CRUDJob:
         results = []
         if job_filter.only_open_job:
             jobs = jobs.filter(Job.is_open == True)
+        if job_filter.employer_id:
+            jobs = jobs.join(Job.employer).filter(Employer.id == job_filter.employer_id)
         if job_filter.employer_name:
             jobs = jobs.join(Job.employer).filter(Employer.name == job_filter.employer_name)
         total = jobs.count()
-        jobs = jobs.offset(offset).limit(limit)
+        jobs = jobs.order_by(Job.created_at.desc()).offset(offset).limit(limit)
         for job in jobs:
             tags = [t.name for t in job.tags]
             job_info = dict(job.__dict__)
