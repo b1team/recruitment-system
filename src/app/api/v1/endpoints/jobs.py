@@ -60,6 +60,19 @@ async def get_job(job_id: str):
     return job
 
 
+@router.get("/jobs/slugs/{job_slug}", response_model=JobPublicInfo)
+async def get_job_by_slug(job_slug: str):
+    with session_scope() as db:
+        job = db.query(Job).filter(Job.slug == job_slug).first()
+        if not job:
+            raise JobNotFoundError(f"slug: {job_slug} ")
+        tags = [tag.name for tag in job.tags]
+        job_clone = {**job.__dict__}
+        job_clone.pop("tags")
+        response = JobPublicInfo(**job_clone, tags=tags)
+        return response
+
+
 @router.put("/jobs/{job_id}")
 async def update(job_id: str, job_info: UpdateJobModel = Body(...), identities=Depends(auth.check_token)):
     if identities.user_type != UserType.employer.value:

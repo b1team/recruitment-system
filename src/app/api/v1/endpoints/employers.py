@@ -9,7 +9,7 @@ from src.app.api import auth
 from src.app.models import Apply, Job, Employer, User
 from src.app.db.constants import ApplyStatus
 from src.app.constants import UserType
-from src.app.exceptions import BadRequestsError, AuthenticationError, AuthorizationError, AuthenError
+from src.app.exceptions import BadRequestsError, AuthenticationError, AuthorizationError, AuthenError, EmployeeNotFoundError
 from src.app.crud.employer import CRUDemployer
 from src.app.crud.job import CRUDJob
 
@@ -18,7 +18,7 @@ from src.app.schemas.filters.employee import EmployeeFilter
 from src.app.schemas.filters.job import JobFilter
 
 from src.app.schemas.apply import PayloadUpdateApply
-from src.app.schemas.employer import EmployerUpdate
+from src.app.schemas.employer import EmployerUpdate, GetEmployerResponse
 from src.app.schemas.job import GetEmployerJobsResponse
 from src.app.schemas.employer import EmployerCreate, EmployerInDB
 
@@ -142,3 +142,12 @@ async def get_employer_jobs(employer_id: int, identities: Identities = Depends(a
         jobs, total = crud_job.get_many(offset=offset, limit=limit, job_filter=job_filters)
     return GetEmployerJobsResponse(jobs=jobs, total=total)
 
+
+@router.get("/employers/{employer_id}", response_model=GetEmployerResponse)
+async def get_one_employer(employer_id: str):
+    with session_scope() as db:
+        employer = db.query(Employer).get(employer_id)
+        if not employer:
+            raise EmployeeNotFoundError(employer_id)
+        
+        return GetEmployerResponse(**employer.__dict__)
