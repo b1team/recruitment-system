@@ -14,3 +14,6 @@ def employee_filter(employee_id: Optional[int] = None):
 
 def job_filter(only_open_job: Optional[bool] = None, employer_name: Optional[str] = None):
     return JobFilter(only_open_job=only_open_job, employer_name=employer_name)
+
+def employer_jobs_filter(only_open_job: Optional[bool] = None):
+    return JobFilter(only_open_job=only_open_job)
